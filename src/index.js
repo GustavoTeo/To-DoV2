@@ -4,7 +4,7 @@ const cors = require('cors');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
-
+//Esse é o novo
 app.use(cors());
 app.use(express.json());
 
@@ -40,7 +40,7 @@ app.post('/users', (request, response) => {
 
 app.get('/todos', checksExistsUserAccount, (request, response) => {
   const { user } = request;
-  return response.status(200).json(user.todos)
+  return response.json(user.todos)
 });
 
 app.post('/todos', checksExistsUserAccount, (request, response) => {
@@ -54,7 +54,7 @@ app.post('/todos', checksExistsUserAccount, (request, response) => {
         created_at: new Date(),
     }
     user.todos.push(todo)
-    return response.status(201).send()
+    return response.status(201).send(todo)
 });
 
 app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
@@ -62,7 +62,7 @@ app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
   const { title, deadline } = request.body;
   const { id } = request.params;
 
-  let modifyTodo = user.todos.find(todo => todo.id == id);
+  let modifyTodo = user.todos.find(todo => todo.id === id);
   if(!modifyTodo){
       return response.status(404).send({error:"ToDo not found"})
   }
@@ -70,7 +70,7 @@ app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
   modifyTodo.title = title;
   modifyTodo.deadline = new Date(deadline);
 
-  return response.status(201).send();
+  return response.send(modifyTodo);
 });
 
 app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
@@ -83,21 +83,21 @@ app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
   }
   modifyTodo.done = true;
 
-  return response.status(201).send(user);
+  return response.send(modifyTodo);
 });
 
 app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
   const { user } = request;
   const { id } = request.params;
 
-  let modifyTodo = user.todos.find(todo => todo.id == id);
-  if(!modifyTodo){
+  let modifyTodo = user.todos.findIndex(todo => todo.id == id);
+  if(modifyTodo === -1){
       return response.status(404).send({error:"ToDo not found"})
   }
 
- user.todos.splice(modifyTodo, 1)
+  user.todos.splice(modifyTodo, 1)
 
-  return response.status(204).send();
+  return response.status(204).json();
 });
 
 module.exports = app;
